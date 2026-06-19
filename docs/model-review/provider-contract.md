@@ -46,3 +46,12 @@ MINIMAX_MODEL=MiniMax-M3
 Use `https://api.minimax.io/v1` for the international endpoint, or `https://api.minimaxi.com/v1` for the China endpoint.
 
 The first implementation sends a sanitized URL, title, trimmed body text, and expectation profile. It does not send cookies, authorization headers, localStorage, or screenshot bytes by default.
+
+Enable visual review explicitly:
+
+```bash
+E2E_AI_VISION=1
+E2E_AI_MAX_IMAGE_BYTES=8000000
+```
+
+When enabled, the provider sends the Playwright screenshot as a base64 `image_url` together with the text prompt. This allows the model to inspect blank screens, broken layouts, overlapping text, modal overlays, and whether the screenshot visually matches the expected page.

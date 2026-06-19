@@ -1,3 +1,4 @@
+import { readFileSync, statSync } from "node:fs";
 import type { AiJudgeProvider, AiJudgeResult, PageEvidence, PageExpectationProfile } from "./types";
 
 type ChatCompletionResponse = {
@@ -33,11 +34,11 @@ export function minimaxJudge(expectationProfile: PageExpectationProfile = {}, en
           },
           {
             role: "user",
-            content: buildPrompt(pageName, evidence, expectationProfile, env)
+            content: buildUserContent(pageName, evidence, expectationProfile, env)
           }
         ],
         temperature: 0.2,
-        max_completion_tokens: 500,
+        max_completion_tokens: 700,
         thinking: { type: "disabled" }
       })
     }, timeoutMs);
@@ -55,12 +56,25 @@ export function minimaxJudge(expectationProfile: PageExpectationProfile = {}, en
   };
 }
 
+function buildUserContent(pageName: string, evidence: PageEvidence, profile: PageExpectationProfile, env: NodeJS.ProcessEnv) {
+  const prompt = buildPrompt(pageName, evidence, profile, env);
+  if (!isVisionEnabled(env)) return prompt;
+
+  const imageUrl = imageDataUrl(evidence.screenshotPath, env);
+  if (!imageUrl) return prompt;
+
+  return [
+    { type: "text", text: prompt },
+    { type: "image_url", image_url: { url: imageUrl } }
+  ];
+}
+
 function buildPrompt(pageName: string, evidence: PageEvidence, profile: PageExpectationProfile, env: NodeJS.ProcessEnv) {
   const maxBodyChars = Number(env.E2E_AI_MAX_BODY_CHARS || 2500);
   const expectedContent = (profile.expectedContent ?? []).map((item) => String(item));
 
   return JSON.stringify({
-    task: "Review whether this admin page looks complete enough for a smoke test.",
+    task: "Review whether this admin page looks visually and semantically complete enough for a smoke test. If an image is attached, inspect it for blank screen, broken layout, overlapping text, invisible content, modal overlays, obvious rendering errors, and whether the screenshot matches the expected page.",
     pageName,
     url: sanitizeUrl(evidence.url),
     title: evidence.title,
@@ -69,6 +83,10 @@ function buildPrompt(pageName: string, evidence: PageEvidence, profile: PageExpe
       expectedContent,
       minBodyTextLength: profile.minBodyTextLength ?? 80
     },
+    visualReview: {
+      enabled: isVisionEnabled(env),
+      screenshotPath: evidence.screenshotPath
+    },
     outputSchema: {
       pass: "boolean",
       score: "number 0-100",
@@ -76,6 +94,22 @@ function buildPrompt(pageName: string, evidence: PageEvidence, profile: PageExpe
       evidence: "array of short strings"
     }
   });
+}
+
+function isVisionEnabled(env: NodeJS.ProcessEnv) {
+  return env.PC_E2E_AI_VISION === "1" || env.E2E_AI_VISION === "1";
+}
+
+function imageDataUrl(filePath: string, env: NodeJS.ProcessEnv) {
+  try {
+    const maxBytes = Number(env.E2E_AI_MAX_IMAGE_BYTES || 8_000_000);
+    const stat = statSync(filePath);
+    if (stat.size > maxBytes) return undefined;
+    const mimeType = filePath.toLowerCase().endsWith(".jpg") || filePath.toLowerCase().endsWith(".jpeg") ? "image/jpeg" : "image/png";
+    return `data:${mimeType};base64,${readFileSync(filePath).toString("base64")}`;
+  } catch {
+    return undefined;
+  }
 }
 
 async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number) {

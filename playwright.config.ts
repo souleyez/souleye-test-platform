@@ -1,9 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 import { getBaseUrl } from "./src/core/env";
 
+const aiProvider = (process.env.PC_E2E_AI_PROVIDER || process.env.E2E_AI_PROVIDER || "heuristic").toLowerCase();
+const usesRemoteAiJudge = aiProvider !== "heuristic";
+const usesVisionJudge = process.env.PC_E2E_AI_VISION === "1" || process.env.E2E_AI_VISION === "1";
+
 export default defineConfig({
   testDir: "./tests",
-  timeout: 60_000,
+  timeout: usesVisionJudge ? 420_000 : usesRemoteAiJudge ? 180_000 : 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
   retries: process.env.CI ? 1 : 0,
@@ -25,4 +29,3 @@ export default defineConfig({
   ],
   outputDir: "outputs/playwright-artifacts"
 });
-

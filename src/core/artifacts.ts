@@ -7,7 +7,7 @@ export async function capturePageEvidence(page: Page, testInfo: TestInfo, label:
   const dir = path.join(testInfo.outputDir, "page-evidence");
   mkdirSync(dir, { recursive: true });
 
-  const safeLabel = label.replace(/[^a-z0-9_-]+/gi, "-").toLowerCase();
+  const safeLabel = safeName(label);
   const screenshotPath = path.join(dir, `${safeLabel}.png`);
   await page.screenshot({ path: screenshotPath, fullPage: true });
 
@@ -19,3 +19,8 @@ export async function capturePageEvidence(page: Page, testInfo: TestInfo, label:
   };
 }
 
+function safeName(value: string) {
+  const normalized = value.replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+  if (normalized) return normalized;
+  return Buffer.from(value).toString("hex").slice(0, 32);
+}
