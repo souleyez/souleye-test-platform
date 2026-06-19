@@ -9,3 +9,6 @@ export function getAiJudgeMode(env = process.env): AiJudgeMode {
   return mode === "warn" || mode === "fail" ? mode : "off";
 }
 
+export function getAiProvider(env = process.env) {
+  return (env.PC_E2E_AI_PROVIDER || env.E2E_AI_PROVIDER || "heuristic").toLowerCase();
+}

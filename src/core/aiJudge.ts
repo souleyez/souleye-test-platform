@@ -1,5 +1,6 @@
 import { expect, type TestInfo } from "@playwright/test";
-import { getAiJudgeMode } from "./env";
+import { getAiJudgeMode, getAiProvider } from "./env";
+import { minimaxJudge } from "./minimaxJudge";
 import type { AiJudgeResult, PageEvidence, PageExpectationProfile, PageQualityOptions } from "./types";
 
 export async function judgePageQuality(
@@ -12,7 +13,7 @@ export async function judgePageQuality(
   if (mode === "off") return;
 
   const expectationProfile = options.expectationProfile ?? { expectedContent: options.expectedContent };
-  const provider = options.provider ?? localHeuristicJudge(expectationProfile);
+  const provider = options.provider ?? configuredJudgeProvider(expectationProfile);
   const result = await provider({ pageName, evidence, expectationProfile }).catch((error): AiJudgeResult => ({
     pass: true,
     score: 0,
@@ -28,6 +29,12 @@ export async function judgePageQuality(
   if (!result.pass && mode === "fail") {
     expect(result, result.reason).toMatchObject({ pass: true });
   }
+}
+
+function configuredJudgeProvider(expectationProfile: PageExpectationProfile = {}) {
+  const provider = getAiProvider();
+  if (provider === "minimax") return minimaxJudge(expectationProfile);
+  return localHeuristicJudge(expectationProfile);
 }
 
 export function localHeuristicJudge(expectationProfile: PageExpectationProfile = {}) {
