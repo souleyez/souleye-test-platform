@@ -1,10 +1,10 @@
 node_modules/
 outputs/
 test-results/
+tmp/
 playwright-report/
 .env
 .env.*
 !.env.example
 dist/
 *.tsbuildinfo
-

@@ -1,0 +1,13 @@
+[Unit]
+Description=Souleye Test Platform job %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/souleye-test-platform/platform.env
+EnvironmentFile=-/etc/souleye-test-platform/model.env
+WorkingDirectory=/opt/souleye-test-platform/current
+ExecStart=/opt/souleye-test-platform/current/scripts/jobs/%i.sh
+StandardOutput=append:/var/log/souleye-test-platform/%i.log
+StandardError=append:/var/log/souleye-test-platform/%i.log

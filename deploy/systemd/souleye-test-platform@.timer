@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Souleye Test Platform job %i
+
+[Timer]
+OnCalendar=*-*-* 07:30:00
+Persistent=true
+Unit=souleye-test-platform@%i.service
+
+[Install]
+WantedBy=timers.target

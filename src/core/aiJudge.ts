@@ -1,6 +1,6 @@
 import { expect, type TestInfo } from "@playwright/test";
 import { getAiJudgeMode } from "./env";
-import type { AiJudgeResult, PageEvidence, PageQualityOptions } from "./types";
+import type { AiJudgeResult, PageEvidence, PageExpectationProfile, PageQualityOptions } from "./types";
 
 export async function judgePageQuality(
   testInfo: TestInfo,
@@ -11,8 +11,9 @@ export async function judgePageQuality(
   const mode = options.mode ?? getAiJudgeMode();
   if (mode === "off") return;
 
-  const provider = options.provider ?? localHeuristicJudge(options.expectedContent);
-  const result = await provider({ pageName, evidence }).catch((error): AiJudgeResult => ({
+  const expectationProfile = options.expectationProfile ?? { expectedContent: options.expectedContent };
+  const provider = options.provider ?? localHeuristicJudge(expectationProfile);
+  const result = await provider({ pageName, evidence, expectationProfile }).catch((error): AiJudgeResult => ({
     pass: true,
     score: 0,
     reason: `AI judge unavailable: ${error instanceof Error ? error.message : String(error)}`,
@@ -29,11 +30,12 @@ export async function judgePageQuality(
   }
 }
 
-export function localHeuristicJudge(expectedContent: Array<string | RegExp> = []) {
+export function localHeuristicJudge(expectationProfile: PageExpectationProfile = {}) {
   return async ({ pageName, evidence }: { pageName: string; evidence: PageEvidence }): Promise<AiJudgeResult> => {
     const body = evidence.bodyText.trim();
     const hasRuntimeError = /is not defined|cannot read|undefined|null|白屏|报错|error/i.test(body);
-    const looksEmpty = body.length < 80;
+    const looksEmpty = body.length < (expectationProfile.minBodyTextLength ?? 80);
+    const expectedContent = expectationProfile.expectedContent ?? [];
     const missingExpectedContent = expectedContent.filter((item) =>
       typeof item === "string" ? !body.includes(item) : !item.test(body)
     );
@@ -58,4 +60,3 @@ export function localHeuristicJudge(expectedContent: Array<string | RegExp> = []
 function safeName(value: string) {
   return value.replace(/[^a-z0-9_-]+/gi, "-").toLowerCase();
 }
-
