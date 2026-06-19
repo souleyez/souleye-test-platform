@@ -1,0 +1,26 @@
+{
+  "name": "souleye-test-platform",
+  "version": "0.1.0",
+  "description": "Reusable Playwright and AI-assisted E2E test platform seed.",
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "playwright test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report outputs/playwright-report"
+  },
+  "keywords": [
+    "playwright",
+    "e2e",
+    "testing",
+    "ai-judge"
+  ],
+  "author": "soulzyn",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@types/node": "^25.9.3",
+    "typescript": "^6.0.3"
+  }
+}
