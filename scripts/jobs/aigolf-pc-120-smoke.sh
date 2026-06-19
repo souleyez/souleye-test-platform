@@ -34,10 +34,22 @@ export E2E_PROJECT="aigolf"
 export E2E_ENV="120"
 export E2E_RUN_ID="$RUN_ID"
 
-pnpm test:pc:120
+TEST_EXIT=0
+pnpm test:pc:120 || TEST_EXIT=$?
 
 TARGET="/srv/souleye-test-platform/reports/aigolf/120/$RUN_ID"
 mkdir -p "$TARGET"
-cp -a outputs/playwright-report/. "$TARGET/"
-printf '{"project":"aigolf","env":"120","runId":"%s","createdAt":"%s"}\n' "$RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$TARGET/run.json"
+if [ -d outputs/playwright-report ]; then
+  cp -a outputs/playwright-report/. "$TARGET/"
+fi
+if [ -d outputs/playwright-artifacts ]; then
+  mkdir -p "$TARGET/artifacts"
+  cp -a outputs/playwright-artifacts/. "$TARGET/artifacts/"
+fi
+STATUS="passed"
+if [ "$TEST_EXIT" -ne 0 ]; then
+  STATUS="failed"
+fi
+printf '{"project":"aigolf","env":"120","runId":"%s","status":"%s","exitCode":%s,"createdAt":"%s"}\n' "$RUN_ID" "$STATUS" "$TEST_EXIT" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$TARGET/run.json"
 echo "$TARGET"
+exit "$TEST_EXIT"
