@@ -16,4 +16,5 @@ http://8.129.12.60/test-reports/
 
 The public old8 report path is intentionally served without HTTP Basic Auth.
 Do not publish secrets, passwords, tokens, private user data, or unrestricted
-production screenshots into this directory.
+production screenshots into this directory. Markdown reports are served as
+plain text so they can be opened directly in a browser.
