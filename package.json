@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "check": "tsc --noEmit",
+    "report:md": "node scripts/ops/write-report-md.mjs",
     "report:publish": "node scripts/ops/publish-report.mjs",
     "test": "playwright test",
     "test:e2e": "playwright test",

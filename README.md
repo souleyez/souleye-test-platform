@@ -9,6 +9,7 @@ This repository is intended to host shared testing infrastructure that can be re
 - Playwright baseline configuration.
 - Shared white-screen and runtime-error checks.
 - Screenshot, video, trace, and HTML report conventions.
+- Markdown report generation through `report.md`.
 - Provider-neutral AI quality judge interface.
 - Local heuristic judge for zero-credential smoke runs.
 - Examples showing how a product project can plug in its own login, menus, seed data, and business assertions.
@@ -26,6 +27,7 @@ This repository is intended to host shared testing infrastructure that can be re
 pnpm install
 pnpm check
 pnpm test
+pnpm report:md
 pnpm test:e2e:report
 ```
 
@@ -52,4 +54,3 @@ outputs/                  generated test reports, ignored by git
 ## First Consumer
 
 AIGOLF can be the first project to consume this platform. Its product-specific E2E tests should remain in `aigolf-ops-platform`, while shared helpers graduate into this repository only after they are proven reusable.
-

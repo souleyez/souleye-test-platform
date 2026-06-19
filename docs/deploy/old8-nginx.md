@@ -14,10 +14,6 @@ http://127.0.0.1:8088/
 http://8.129.12.60/test-reports/
 ```
 
-The public old8 path uses HTTP Basic Auth through:
-
-```text
-/etc/nginx/.souleye-test-platform.htpasswd
-```
-
-Reports may contain screenshots and DOM summaries from operational systems.
+The public old8 report path is intentionally served without HTTP Basic Auth.
+Do not publish secrets, passwords, tokens, private user data, or unrestricted
+production screenshots into this directory.
