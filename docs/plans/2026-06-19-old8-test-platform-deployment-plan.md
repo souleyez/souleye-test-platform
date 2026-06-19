@@ -480,12 +480,19 @@ Create `scripts/jobs/aigolf-pc-120-smoke.sh`:
 set -euo pipefail
 
 AIGOLF_DIR="${AIGOLF_DIR:-/opt/souleye-test-platform/projects/aigolf-ops-platform}"
-AIGOLF_REPO="${AIGOLF_REPO:-https://github.com/souleyez/aigolf-ops-platform.git}"
+AIGOLF_REPO="${AIGOLF_REPO:-git@github.com:souleyez/aigolf-ops-platform.git}"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
 
 if [ ! -d "$AIGOLF_DIR/.git" ]; then
-  rm -rf "$AIGOLF_DIR"
-  git clone "$AIGOLF_REPO" "$AIGOLF_DIR"
+  PARENT="$(dirname "$AIGOLF_DIR")"
+  BASENAME="$(basename "$AIGOLF_DIR")"
+  STAGING="$PARENT/.${BASENAME}.staging.$$"
+  mkdir -p "$PARENT"
+  git clone "$AIGOLF_REPO" "$STAGING"
+  if [ -e "$AIGOLF_DIR" ]; then
+    mv "$AIGOLF_DIR" "$PARENT/.${BASENAME}.previous.$(date +%Y%m%d%H%M%S)"
+  fi
+  mv "$STAGING" "$AIGOLF_DIR"
 else
   git -C "$AIGOLF_DIR" fetch origin
   git -C "$AIGOLF_DIR" checkout main

@@ -10,7 +10,8 @@ scripts/jobs/aigolf-pc-120-smoke.sh
 
 Default behavior:
 
-- clones or updates `https://github.com/souleyez/aigolf-ops-platform.git`
+- clones or updates `git@github.com:souleyez/aigolf-ops-platform.git`
+- requires a read-only GitHub deploy key on old8 because AIGOLF is private
 - runs against `https://sd.goods-editor.com/admin/`
 - installs Playwright Chromium with Linux system dependencies
 - keeps `PC_E2E_MUTATION=0`

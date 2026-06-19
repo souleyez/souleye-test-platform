@@ -5,8 +5,15 @@ REPO_URL="${REPO_URL:-https://github.com/souleyez/souleye-test-platform.git}"
 TARGET="${TARGET:-/opt/souleye-test-platform/current}"
 
 if [ ! -d "$TARGET/.git" ]; then
-  rm -rf "$TARGET"
-  git clone "$REPO_URL" "$TARGET"
+  PARENT="$(dirname "$TARGET")"
+  BASENAME="$(basename "$TARGET")"
+  STAGING="$PARENT/.${BASENAME}.staging.$$"
+  mkdir -p "$PARENT"
+  git clone "$REPO_URL" "$STAGING"
+  if [ -e "$TARGET" ]; then
+    mv "$TARGET" "$PARENT/.${BASENAME}.previous.$(date +%Y%m%d%H%M%S)"
+  fi
+  mv "$STAGING" "$TARGET"
 else
   git -C "$TARGET" fetch origin
   git -C "$TARGET" checkout main
