@@ -14,7 +14,7 @@ export function writeMarkdownReport(options = {}) {
   const judges = judgeFiles.map((file) => readJudge(target, file)).filter(Boolean);
   const markdown = buildMarkdown(target, metadata, judges);
   const outputPath = path.join(target, "report.md");
-  writeFileSync(outputPath, markdown, "utf8");
+  writeFileSync(outputPath, `\uFEFF${markdown}`, "utf8");
   return outputPath;
 }
 
