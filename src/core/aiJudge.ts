@@ -76,5 +76,7 @@ export function localHeuristicJudge(expectationProfile: PageExpectationProfile =
 }
 
 function safeName(value: string) {
-  return value.replace(/[^a-z0-9_-]+/gi, "-").toLowerCase();
+  const normalized = value.replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
+  if (normalized) return normalized;
+  return Buffer.from(value).toString("hex").slice(0, 32);
 }
