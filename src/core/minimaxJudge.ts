@@ -1,4 +1,5 @@
-import { readFileSync, statSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, statSync } from "node:fs";
+import path from "node:path";
 import type { AiJudgeProvider, AiJudgeResult, PageEvidence, PageExpectationProfile } from "./types";
 
 type ChatCompletionResponse = {
@@ -105,11 +106,34 @@ function imageDataUrl(filePath: string, env: NodeJS.ProcessEnv) {
     const maxBytes = Number(env.E2E_AI_MAX_IMAGE_BYTES || 8_000_000);
     const stat = statSync(filePath);
     if (stat.size > maxBytes) return undefined;
+
+    const publicUrl = publishImageUrl(filePath, env);
+    if (publicUrl) return publicUrl;
+
     const mimeType = filePath.toLowerCase().endsWith(".jpg") || filePath.toLowerCase().endsWith(".jpeg") ? "image/jpeg" : "image/png";
     return `data:${mimeType};base64,${readFileSync(filePath).toString("base64")}`;
   } catch {
     return undefined;
   }
+}
+
+function publishImageUrl(filePath: string, env: NodeJS.ProcessEnv) {
+  const root = env.E2E_AI_IMAGE_PUBLIC_ROOT;
+  const baseUrl = env.E2E_AI_IMAGE_BASE_URL;
+  if (!root || !baseUrl) return undefined;
+
+  const runId = safePathSegment(env.E2E_RUN_ID || env.PC_E2E_RUN_ID || new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 14));
+  const fileName = safePathSegment(path.basename(filePath));
+  const targetDir = path.join(root, runId);
+  mkdirSync(targetDir, { recursive: true });
+  copyFileSync(filePath, path.join(targetDir, fileName));
+  return `${baseUrl.replace(/\/+$/, "")}/${encodeURIComponent(runId)}/${encodeURIComponent(fileName)}`;
+}
+
+function safePathSegment(value: string) {
+  const normalized = value.replace(/[^a-z0-9._-]+/gi, "-").replace(/^-+|-+$/g, "");
+  if (normalized) return normalized;
+  return Buffer.from(value).toString("hex").slice(0, 32);
 }
 
 async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number) {

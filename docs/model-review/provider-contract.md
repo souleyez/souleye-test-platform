@@ -55,3 +55,12 @@ E2E_AI_MAX_IMAGE_BYTES=8000000
 ```
 
 When enabled, the provider sends the Playwright screenshot as a base64 `image_url` together with the text prompt. This allows the model to inspect blank screens, broken layouts, overlapping text, modal overlays, and whether the screenshot visually matches the expected page.
+
+MiniMax's documented example uses a publicly reachable image URL. On old8, configure:
+
+```bash
+E2E_AI_IMAGE_PUBLIC_ROOT=/srv/souleye-test-platform/vision-inputs
+E2E_AI_IMAGE_BASE_URL=http://8.129.12.60/test-vision-inputs
+```
+
+With those variables set, screenshots are copied to the public root and the model receives a URL instead of inline base64. Directory listing is disabled in nginx; the URL is still bearer-style access to the screenshot, so keep it limited to smoke-test evidence and rotate/clean old files as needed.
