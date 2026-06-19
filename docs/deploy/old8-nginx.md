@@ -7,16 +7,17 @@ scp deploy/nginx/souleye-test-platform.conf old8:/etc/nginx/conf.d/souleye-test-
 ssh old8 "nginx -t && systemctl reload nginx"
 ```
 
-Default report URL:
+Report URLs:
 
 ```text
-http://8.129.12.60:8088/
+http://127.0.0.1:8088/
+http://8.129.12.60/test-reports/
 ```
 
-The default config is intentionally simple and should be protected before broad exposure:
+The public old8 path uses HTTP Basic Auth through:
 
-- IP allowlist, or
-- basic auth, or
-- private network only.
+```text
+/etc/nginx/.souleye-test-platform.htpasswd
+```
 
 Reports may contain screenshots and DOM summaries from operational systems.
