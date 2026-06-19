@@ -1,3 +1,5 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { expect, type TestInfo } from "@playwright/test";
 import { getAiJudgeMode, getAiProvider } from "./env";
 import { minimaxJudge } from "./minimaxJudge";
@@ -21,14 +23,23 @@ export async function judgePageQuality(
     evidence: [evidence.screenshotPath, evidence.url]
   }));
 
+  const body = JSON.stringify(result, null, 2);
+  writeJudgeJson(testInfo, pageName, body);
+
   await testInfo.attach(`ai-judge-${safeName(pageName)}.json`, {
-    body: JSON.stringify(result, null, 2),
+    body,
     contentType: "application/json"
   });
 
   if (!result.pass && mode === "fail") {
     expect(result, result.reason).toMatchObject({ pass: true });
   }
+}
+
+function writeJudgeJson(testInfo: TestInfo, pageName: string, body: string) {
+  const dir = path.join(testInfo.outputDir, "ai-judge");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(path.join(dir, `${safeName(pageName)}.json`), body, "utf8");
 }
 
 function configuredJudgeProvider(expectationProfile: PageExpectationProfile = {}) {
