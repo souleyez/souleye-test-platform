@@ -12,6 +12,7 @@ Default behavior:
 
 - clones or updates `https://github.com/souleyez/aigolf-ops-platform.git`
 - runs against `https://sd.goods-editor.com/admin/`
+- installs Playwright Chromium with Linux system dependencies
 - keeps `PC_E2E_MUTATION=0`
 - keeps `PC_E2E_AI_JUDGE=warn`
 - publishes reports under `/srv/souleye-test-platform/reports/aigolf/120/<run-id>`

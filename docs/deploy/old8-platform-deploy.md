@@ -17,7 +17,7 @@ It then runs:
 
 ```text
 pnpm install --frozen-lockfile
-pnpm exec playwright install chromium
+pnpm exec playwright install --with-deps chromium
 pnpm check
 pnpm test
 ```

@@ -18,7 +18,7 @@ cd "$AIGOLF_DIR"
 corepack enable
 corepack prepare pnpm@11.4.0 --activate
 pnpm install --frozen-lockfile
-pnpm exec playwright install chromium
+pnpm exec playwright install --with-deps chromium
 
 export PC_E2E_BASE_URL="${PC_E2E_BASE_URL:-https://sd.goods-editor.com/admin/}"
 export PC_E2E_MUTATION="${PC_E2E_MUTATION:-0}"

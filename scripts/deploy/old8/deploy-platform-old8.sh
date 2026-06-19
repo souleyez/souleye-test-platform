@@ -18,7 +18,7 @@ corepack enable
 corepack prepare pnpm@11.4.0 --activate
 pnpm install --frozen-lockfile
 find scripts -name '*.sh' -type f -exec chmod +x {} +
-pnpm exec playwright install chromium
+pnpm exec playwright install --with-deps chromium
 pnpm check
 pnpm test
 
